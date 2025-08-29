@@ -1,0 +1,115 @@
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+
+-- Window Setup
+local Window = Rayfield:CreateWindow({
+    Name = "Pet Mutation Finder",
+    LoadingTitle = "Pet Mutation Finder",
+    LoadingSubtitle = "by Kuni",
+    ConfigurationSaving = {Enabled = false},
+    Discord = {Enabled = false}
+})
+
+-- Tabs
+local MainTab = Window:CreateTab("Main")
+local FinderTab = Window:CreateTab("Finder")
+local CreditsTab = Window:CreateTab("Credits")
+
+-- Services
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+
+-- Mutations
+local mutations = {
+    "Shiny", "Inverted", "Frozen", "Windy", "Golden", "Mega", "Tiny",
+    "Tranquil", "IronSkin", "Radiant", "Rainbow", "Shocked", "Ascended"
+}
+local currentMutation = mutations[math.random(#mutations)]
+local espLabel
+local espVisible = true
+
+-- Mutation Machine Finder
+local function findMachine()
+    for _, obj in pairs(Workspace:GetDescendants()) do
+        if obj:IsA("Model") and obj.Name:lower():find("mutation") then
+            return obj
+        end
+    end
+end
+
+local machine = findMachine()
+if not machine or not machine:FindFirstChildWhichIsA("BasePart") then
+    warn("Pet Mutation Machine not found.")
+    return
+end
+local basePart = machine:FindFirstChildWhichIsA("BasePart")
+
+-- ESP Label
+local espGui = Instance.new("BillboardGui", basePart)
+espGui.Name = "MutationESP"
+espGui.Adornee = basePart
+espGui.Size = UDim2.new(0, 180, 0, 36)
+espGui.StudsOffset = Vector3.new(0, 3, 0)
+espGui.AlwaysOnTop = true
+
+espLabel = Instance.new("TextLabel", espGui)
+espLabel.Size = UDim2.new(1, 0, 1, 0)
+espLabel.BackgroundTransparency = 1
+espLabel.Font = Enum.Font.GothamBold
+espLabel.TextSize = 22
+espLabel.TextStrokeTransparency = 0.2
+espLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+espLabel.Text = currentMutation
+
+-- Rainbow Animation
+local hue = 0
+RunService.RenderStepped:Connect(function()
+    if espVisible and espLabel then
+        hue = (hue + 0.005) % 1
+        espLabel.TextColor3 = Color3.fromHSV(hue, 0.8, 1)
+    end
+end)
+
+-- Buttons
+local rerollBtn
+local autoBtn
+
+-- Reroll Button
+rerollBtn = MainTab:CreateButton({
+    Name = "Mutation Reroll",
+    Callback = function()
+        if not espLabel then return end
+        rerollBtn.Text = "Rerolling..."
+        for i = 1, 20 do
+            espLabel.Text = mutations[math.random(#mutations)]
+            task.wait(0.1)
+        end
+        currentMutation = mutations[math.random(#mutations)]
+        espLabel.Text = currentMutation
+        rerollBtn.Text = "Mutation Reroll"
+    end
+})
+
+-- Auto Ascended Button
+autoBtn = MainTab:CreateButton({
+    Name = "Auto Get Ascended",
+    Callback = function()
+        if not espLabel then return end
+        autoBtn.Text = "Getting Ascended..."
+        for t = 1, 40 do
+            currentMutation = mutations[math.random(#mutations - 1)]
+            espLabel.Text = currentMutation
+            task.wait(1)
+        end
+        currentMutation = "Ascended"
+        espLabel.Text = currentMutation
+        autoBtn.Text = "ASCENDED FOUND!"
+        task.wait(2)
+        autoBtn.Text = "Auto Get Ascended"
+    end
+})
+
+-- Credits
+CreditsTab:CreateLabel("Made by Skyee")
+CreditsTab:CreateLabel("TikTok:YT Skyee Script")

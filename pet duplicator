@@ -1,0 +1,112 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+--// Load Rayfield
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+--// Window
+local Window = Rayfield:CreateWindow({
+    Name = "Pet Duplicator V1",
+    LoadingTitle = "Pet Duplicator",
+    LoadingSubtitle = "Skyee Script",
+    ConfigurationSaving = {
+        Enabled = false,
+        FolderName = nil,
+        FileName = "PetDuplicator"
+    },
+    Discord = {
+        Enabled = false,
+        Invite = "", -- optional
+        RememberJoins = false
+    },
+    KeySystem = false,
+})
+
+--// Tabs
+local MainTab = Window:CreateTab("Main", 4483362458) -- icon id is optional
+local InfoTab = Window:CreateTab("Info", 4483362458)
+
+--// Variables
+local multiplier = 1
+local character = player.Character or player.CharacterAdded:Wait()
+local function getEquippedTool()
+	character = player.Character or player.CharacterAdded:Wait()
+	for _, tool in pairs(character:GetChildren()) do
+		if tool:IsA("Tool") and tool:FindFirstChild("Handle") then
+			return tool
+		end
+	end
+	return nil
+end
+
+--// Equipped Item Label
+local equippedLabel = MainTab:CreateLabel("(Pet/Item Equipped): [None]")
+
+-- Update loop
+task.spawn(function()
+	while true do
+		local tool = getEquippedTool()
+		if tool then
+			equippedLabel:Set("(Pet/Item Equipped): " .. tool.Name)
+		else
+			equippedLabel:Set("(Pet/Item Equipped): [None]")
+		end
+		task.wait(1)
+	end
+end)
+
+--// Multiplier Slider
+MainTab:CreateSlider({
+	Name = "Multiplier",
+	Range = {1, 100},
+	Increment = 1,
+	Suffix = "x",
+	CurrentValue = 1,
+	Flag = "MultiplierSlider",
+	Callback = function(Value)
+		multiplier = Value
+	end,
+})
+
+--// Duplicate Button
+MainTab:CreateButton({
+	Name = "Duplicate Pet/Item",
+	Callback = function()
+		local tool = getEquippedTool()
+		if not tool then
+			Rayfield:Notify({
+				Title = "Error",
+				Content = "No Equipped Pet/Item detected",
+				Duration = 3,
+				Image = 4483362458
+			})
+			return
+		end
+
+		-- Loading countdown
+		for i = 10,1,-1 do
+			Rayfield:Notify({
+				Title = "Loading",
+				Content = "Please wait " .. i .. "s",
+				Duration = 1,
+			})
+			task.wait(1)
+		end
+
+		-- Duplicate
+		for i = 1, multiplier do
+			local clone = tool:Clone()
+			clone.Name = tool.Name
+			clone.Parent = player.Backpack
+		end
+
+		Rayfield:Notify({
+			Title = "Success",
+			Content = "(Pet/Item Duplicated) x" .. multiplier,
+			Duration = 3,
+		})
+	end,
+})
+
+--// Footer
+InfoTab:CreateLabel("Tiktok:YT Skyee Script")

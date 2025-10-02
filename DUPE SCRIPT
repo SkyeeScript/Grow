@@ -67,7 +67,7 @@ Instance.new("UICorner", dupeButton)
 
 -- Footer Label
 local footer = Instance.new("TextLabel", frame)
-footer.Text = "Tiktok:YT @SkayExploit"
+footer.Text = "discord=jheremy.x"
 footer.Font = Enum.Font.FredokaOne
 footer.TextSize = 13
 footer.TextColor3 = Color3.fromRGB(150, 150, 150)
